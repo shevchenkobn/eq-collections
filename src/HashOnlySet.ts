@@ -67,6 +67,7 @@ export class HashOnlySet<V> {
         }
     }
 }
+
 export interface HashOnlySet<V> {
     [Symbol.iterator]: typeof HashOnlySet.prototype.values;
     entries: typeof HashOnlySet.prototype.values;
