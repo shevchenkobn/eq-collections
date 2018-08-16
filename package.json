@@ -1,0 +1,34 @@
+{
+  "name": "eq-collections",
+  "version": "0.1.0",
+  "description": "Map and Set collections that use custom hash function or hash function with equals function",
+  "main": "/dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shevchenkobn/eq-collections.git"
+  },
+  "keywords": [
+    "collection",
+    "collections",
+    "map",
+    "set",
+    "hash",
+    "hashcode",
+    "equals",
+    "hashmap",
+    "hashset",
+    "ts",
+    "typescript",
+    "types",
+    "@types"
+  ],
+  "author": "bshevche",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shevchenkobn/eq-collections/issues"
+  },
+  "homepage": "https://github.com/shevchenkobn/eq-collections#readme"
+}
