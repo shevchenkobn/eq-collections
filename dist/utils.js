@@ -9,9 +9,9 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function isPrimitive(val) {
-        const type = typeof val;
-        return (type !== 'object' && type !== 'function') || val === null;
+    function isPrimitive(value) {
+        const type = typeof value;
+        return (type !== 'object' && type !== 'function') || value === null;
     }
     exports.isPrimitive = isPrimitive;
 });
