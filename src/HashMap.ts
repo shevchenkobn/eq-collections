@@ -33,10 +33,8 @@ export class HashMap<K, V> {
 
     set(key: K, value: V) {
         const keyIsPrimitive = isPrimitive(key);
-        if (!this.keyHash && !keyIsPrimitive) {
-            this._map.set(key, value);
-        } else {
-            const hash = keyIsPrimitive ? key : this.keyHash(key);
+        if (this.keyHash || keyIsPrimitive) {
+            const hash = keyIsPrimitive ? key : (this.keyHash as HashResolver<K>)(key);
             const values = this._map.get(hash) as Map<K, V>;
             if (!values) {
                 this._map.set(hash, new Map([[key, value]]));
@@ -51,6 +49,8 @@ export class HashMap<K, V> {
                 }
                 values.set(key, value);
             }
+        } else {
+            this._map.set(key, value);
         }
         return this;
     }
@@ -59,10 +59,8 @@ export class HashMap<K, V> {
         let value: V | null | undefined;
 
         const keyIsPrimitive = isPrimitive(key);
-        if (!this.keyHash && !keyIsPrimitive) {
-            value = this._map.get(key) as V;
-        } else {
-            const hash = keyIsPrimitive ? key : this.keyHash(key);
+        if (this.keyHash || keyIsPrimitive) {
+            const hash = keyIsPrimitive ? key : (this.keyHash as HashResolver<K>)(key);
             const values = this._map.get(hash) as Map<K, V>;
             if (values) {
                 if (!keyIsPrimitive && this.keysEqual) {
@@ -75,6 +73,8 @@ export class HashMap<K, V> {
                     value = values.get(key);
                 }
             }
+        } else {
+            value = this._map.get(key) as V;
         }
 
         return typeof value !== 'undefined' ? value : defaultValue;
@@ -82,10 +82,8 @@ export class HashMap<K, V> {
 
     has(key: K) {
         const keyIsPrimitive = isPrimitive(key);
-        if (!this.keyHash && !keyIsPrimitive) {
-            return this._map.has(key);
-        } else {
-            const hash = keyIsPrimitive ? key : this.keyHash(key);
+        if (this.keyHash || keyIsPrimitive) {
+            const hash = keyIsPrimitive ? key : (this.keyHash as HashResolver<K>)(key);
             const values = this._map.get(hash) as Map<K, V>;
             if (values) {
                 if (!keyIsPrimitive && this.keysEqual) {
@@ -99,15 +97,15 @@ export class HashMap<K, V> {
                 }
             }
             return false;
+        } else {
+            return this._map.has(key);
         }
     }
 
     'delete'(key: K) {
         const keyIsPrimitive = isPrimitive(key);
-        if (!this.keyHash && !keyIsPrimitive) {
-            return this._map.delete(key);
-        } else {
-            const hash = keyIsPrimitive ? key : this.keyHash(key);
+        if (this.keyHash || keyIsPrimitive) {
+            const hash = keyIsPrimitive ? key : (this.keyHash as HashResolver<K>)(key);
             const values = this._map.get(hash) as Map<K, V>;
             if (values) {
                 if (!keyIsPrimitive && this.keysEqual) {
@@ -121,6 +119,8 @@ export class HashMap<K, V> {
                 }
             }
             return false;
+        } else {
+            return this._map.delete(key);
         }
     }
 
@@ -167,7 +167,7 @@ export class HashMap<K, V> {
     }
 }
 
-export interface HashOnlyMap<K, V> {
+export interface HashMap<K, V> {
     [Symbol.iterator]: typeof HashMap.prototype.entries;
 }
 HashMap.prototype[Symbol.iterator] = HashMap.prototype.entries;

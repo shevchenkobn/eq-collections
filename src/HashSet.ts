@@ -31,10 +31,8 @@ export class HashSet<V> {
 
     add(value: V) {
         const valueIsPrimitive = isPrimitive(value);
-        if (!this.valueHash && !valueIsPrimitive) {
-            this._map.set(value, value);
-        } else {
-            const hash = valueIsPrimitive ? value : this.valueHash(value);
+        if (this.valueHash || valueIsPrimitive) {
+            const hash = valueIsPrimitive ? value : (this.valueHash as HashResolver<V>)(value);
             const values = this._map.get(hash) as Array<V>;
             if (!values) {
                 this._map.set(hash, [value]);
@@ -57,16 +55,16 @@ export class HashSet<V> {
                     }
                 }
             }
+        } else {
+            this._map.set(value, value);
         }
         return this;
     }
 
     has(value: V) {
         const valueIsPrimitive = isPrimitive(value);
-        if (!this.valueHash && !valueIsPrimitive) {
-            return this._map.has(value);
-        } else {
-            const hash = valueIsPrimitive ? value : this.valueHash(value);
+        if (this.valueHash || valueIsPrimitive) {
+            const hash = valueIsPrimitive ? value : (this.valueHash as HashResolver<V>)(value);
             const values = this._map.get(hash) as Array<V>;
             if (!values) {
                 return false;
@@ -87,16 +85,16 @@ export class HashSet<V> {
                     }
                 }
             }
+        } else {
+            return this._map.has(value);
         }
         return false;
     }
 
     'delete'(value: V) {
         const valueIsPrimitive = isPrimitive(value);
-        if (!this.valueHash && !valueIsPrimitive) {
-            return this._map.delete(value);
-        } else {
-            const hash = valueIsPrimitive ? value : this.valueHash(value);
+        if (this.valueHash || valueIsPrimitive) {
+            const hash = valueIsPrimitive ? value : (this.valueHash as HashResolver<V>)(value);
             const values = this._map.get(hash) as Array<V>;
             if (!values) {
                 return false;
@@ -119,6 +117,8 @@ export class HashSet<V> {
                     }
                 }
             }
+        } else {
+            return this._map.delete(value);
         }
         return false;
     }
