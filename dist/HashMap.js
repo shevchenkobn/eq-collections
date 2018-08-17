@@ -129,16 +129,23 @@
         clear() {
             return this._map.clear();
         }
-        *entries() {
+        *entries(useDefault = false, defaultValue = this.defaultValue) {
             for (const [key, value] of this._map.entries()) {
                 if (utils_1.isPrimitive(key)) {
                     const values = value;
                     for (const pair of values) {
+                        if (useDefault && pair[1] === undefined) {
+                            pair[1] = defaultValue;
+                        }
                         yield pair;
                     }
                 }
                 else {
-                    yield [key, value];
+                    const pair = [key, value];
+                    if (useDefault && pair[1] === undefined) {
+                        pair[1] = defaultValue;
+                    }
+                    yield pair;
                 }
             }
         }
@@ -158,8 +165,8 @@
                 yield key;
             }
         }
-        *values() {
-            for (const [, value] of this.entries()) {
+        *values(useDefault = false, defaultValue = this.defaultValue) {
+            for (const [, value] of this.entries(useDefault, defaultValue)) {
                 yield value;
             }
         }

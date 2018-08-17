@@ -36,9 +36,10 @@ test('constructed with iterable, `has()` worked for primitives', () => {
 });
 
 let primitivesIndexesToDelete = [1, 4, 5, 8];
+let set;
 
 test('values are deleted and set is cleared', () => {
-    const set = new HashOnlySet(null, primitives);
+    set = new HashOnlySet(null, primitives);
 
     for (const i of primitivesIndexesToDelete) {
         expect(set.delete(primitives[i])).toStrictEqual(true);
@@ -52,17 +53,13 @@ test('values are deleted and set is cleared', () => {
     for (let i = 0; i < primitives.length; i++) {
         expect(set.has(primitives[i])).toStrictEqual(!primitivesIndexesToDelete.includes(i));
     }
-    for (const absent of nonExistent) {
-        expect(set.delete(absent)).toStrictEqual(false);
-    }
-    expect(set.size).toStrictEqual(primitives.length - primitivesIndexesToDelete.length);
 
     // iterating
     {
-        const leftSeed = primitives.filter((_, i) => !primitivesIndexesToDelete.includes(i));
+        const leftPrimitives = primitives.filter((_, i) => !primitivesIndexesToDelete.includes(i));
         const iter = set[Symbol.iterator]();
         let v;
-        for (const value of leftSeed) {
+        for (const value of leftPrimitives) {
             v = iter.next();
             expect(v.value).toStrictEqual(value);
         }
@@ -83,7 +80,9 @@ const dates = [new Date(), new Date(0), new Date(100000), new Date('bad')];
 const objectsIndexesToDelete = [1, 3];
 
 test('non-hashed objects set ready', () => {
-    const set = new HashOnlySet(null, dates);
+    for (const date of dates) {
+        set.add(date);
+    }
 
     expect(set.size).toStrictEqual(dates.length);
 
@@ -255,7 +254,7 @@ test('hashed objects and primitives ready', () => {
     expect(set[Symbol.iterator]().next().done).toStrictEqual(true);
 });
 
-test('iterators work similar', () => {
+test('iterators work similarly', () => {
     const set = new HashOnlySet(hash, primitives.concat(dates));
 
     const iterators = [
@@ -280,7 +279,7 @@ test('iterators work similar', () => {
 
 const stringHash = (date) => date.toString();
 
-test('`hash()` monkey patching', () => {
+test('`valueHash()` monkey patching', () => {
     const set = new HashOnlySet(hash, dates);
 
     set.valueHash = null;

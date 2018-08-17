@@ -128,15 +128,23 @@ export class HashMap<K, V> {
         return this._map.clear();
     }
 
-    *entries(): IterableIterator<[K, V]> {
+    *entries(useDefault = false, defaultValue = this.defaultValue): IterableIterator<[K, V]> {
         for (const [key, value] of this._map.entries()) {
             if (isPrimitive(key)) {
                 const values = value as Map<K, V>;
-                for (const pair of values) {
+                for (let pair of values) {
+                    pair = [pair[0], pair[1]];
+                    if (useDefault && pair[1] === undefined) {
+                        pair[1] = defaultValue as V;
+                    }
                     yield pair;
                 }
             } else {
-                yield [key, value as V];
+                const pair: [K, V] = [key, value as V];
+                if (useDefault && pair[1] === undefined) {
+                    pair[1] = defaultValue as V;
+                }
+                yield pair;
             }
         }
     }
@@ -160,8 +168,8 @@ export class HashMap<K, V> {
         }
     }
 
-    *values(): IterableIterator<V> {
-        for (const [, value] of this.entries()) {
+    *values(useDefault = false, defaultValue = this.defaultValue): IterableIterator<V> {
+        for (const [, value] of this.entries(useDefault, defaultValue)) {
             yield value;
         }
     }

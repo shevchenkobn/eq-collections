@@ -25,20 +25,21 @@ export class HashOnlyMap<K, V> {
     
     set(key: K, value: V) {
         const pair: [K, V] = [key, value];
-        if (!this.keyHash || isPrimitive(key)) {
-            this._map.set(key, pair);
+        const keyIsPrimitive = isPrimitive(key);
+        if (this.keyHash || keyIsPrimitive) {
+            this._map.set(keyIsPrimitive ? key : (this.keyHash as HashResolver<K>)(key), pair);
         } else {
-            this._map.set(this.keyHash(key), pair);
+            this._map.set(key, pair[1]);
         }
         return this;
     }
 
-    get(key: K, defaultValue = this.defaultValue): V | typeof defaultValue {
+    get(key: K, defaultValue = this.defaultValue) {
         const value = this.getValue(key);
         return typeof value !== "undefined" ? value : defaultValue;
     }
 
-    has(key: K): boolean {
+    has(key: K) {
         const value = this.getValue(key);
         return value !== undefined;
     }
@@ -55,13 +56,18 @@ export class HashOnlyMap<K, V> {
         return this._map.clear();
     }
 
-    *entries(): IterableIterator<[K, V]> {
+    *entries(useDefault = false, defaultValue = this.defaultValue): IterableIterator<[K, V]> {
         for (const [key, value] of this._map.entries()) {
+            let pair: [K, V];
             if (isPrimitive(key)) {
-                yield value as [K, V];
+                pair = [...value as [K, V]] as [K, V];
             } else {
-                yield [key, value as V];
+                pair = [key, value as V];
             }
+            if (useDefault && pair[1] === undefined) {
+                pair[1] = defaultValue as V;
+            }
+            yield pair;
         }
     }
 
@@ -84,16 +90,19 @@ export class HashOnlyMap<K, V> {
         }
     }
 
-    *values(): IterableIterator<V> {
-        for (const [, value] of this.entries()) {
+    *values(useDefault = false, defaultValue = this.defaultValue): IterableIterator<V> {
+        for (const [, value] of this.entries(useDefault, defaultValue)) {
             yield value;
         }
     }
 
-    private getValue(key: K): V | null | undefined {
-        return !this.keyHash
-            ? this._map.get(key) as V
-            : (this._map.get(isPrimitive(key) ? key : this.keyHash(key)) as [K, V])[1];
+    private getValue(key: K) {
+        const keyIsPrimitive = isPrimitive(key);
+        const valueIsPair = this.keyHash || keyIsPrimitive;
+        const value = valueIsPair
+            ? this._map.get(keyIsPrimitive ? key : (this.keyHash as HashResolver<K>)(key))
+            : this._map.get(key) as V;
+        return value !== undefined && valueIsPair ? (value  as [K, V])[1] : value;
     }
 }
 

@@ -11,11 +11,11 @@ export declare class HashMap<K, V> {
     has(key: K): boolean;
     'delete'(key: K): boolean;
     clear(): void;
-    entries(): IterableIterator<[K, V]>;
+    entries(useDefault?: boolean, defaultValue?: V | null | undefined): IterableIterator<[K, V]>;
     forEach(callback: (key: K, value: V, map: this) => void): void;
     forEach<T>(callback: (this: T, key: K, value: V, map: this) => void, thisArg: T): void;
     keys(): IterableIterator<K>;
-    values(): IterableIterator<V>;
+    values(useDefault?: boolean, defaultValue?: V | null | undefined): IterableIterator<V>;
 }
 export interface HashMap<K, V> {
     [Symbol.iterator]: typeof HashMap.prototype.entries;

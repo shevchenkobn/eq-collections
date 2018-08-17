@@ -26,11 +26,12 @@
         }
         set(key, value) {
             const pair = [key, value];
-            if (!this.keyHash || utils_1.isPrimitive(key)) {
-                this._map.set(key, pair);
+            const keyIsPrimitive = utils_1.isPrimitive(key);
+            if (this.keyHash || keyIsPrimitive) {
+                this._map.set(keyIsPrimitive ? key : this.keyHash(key), pair);
             }
             else {
-                this._map.set(this.keyHash(key), pair);
+                this._map.set(key, pair[1]);
             }
             return this;
         }
@@ -50,14 +51,19 @@
         clear() {
             return this._map.clear();
         }
-        *entries() {
+        *entries(useDefault = false, defaultValue = this.defaultValue) {
             for (const [key, value] of this._map.entries()) {
+                let pair;
                 if (utils_1.isPrimitive(key)) {
-                    yield value;
+                    pair = [...value];
                 }
                 else {
-                    yield [key, value];
+                    pair = [key, value];
                 }
+                if (useDefault && pair[1] === undefined) {
+                    pair[1] = defaultValue;
+                }
+                yield pair;
             }
         }
         forEach(callback, thisArg) {
@@ -76,15 +82,18 @@
                 yield key;
             }
         }
-        *values() {
-            for (const [, value] of this.entries()) {
+        *values(useDefault = false, defaultValue = this.defaultValue) {
+            for (const [, value] of this.entries(useDefault, defaultValue)) {
                 yield value;
             }
         }
         getValue(key) {
-            return !this.keyHash
-                ? this._map.get(key)
-                : this._map.get(utils_1.isPrimitive(key) ? key : this.keyHash(key))[1];
+            const keyIsPrimitive = utils_1.isPrimitive(key);
+            const valueIsPair = this.keyHash || keyIsPrimitive;
+            const value = valueIsPair
+                ? this._map.get(keyIsPrimitive ? key : this.keyHash(key))
+                : this._map.get(key);
+            return value !== undefined && valueIsPair ? value[1] : value;
         }
     }
     exports.HashOnlyMap = HashOnlyMap;
