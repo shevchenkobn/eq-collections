@@ -78,7 +78,7 @@
             else {
                 value = this._map.get(key);
             }
-            return typeof value !== 'undefined' ? value : defaultValue;
+            return value !== undefined ? value : defaultValue;
         }
         has(key) {
             const keyIsPrimitive = utils_1.isPrimitive(key);
@@ -133,7 +133,8 @@
             for (const [key, value] of this._map.entries()) {
                 if (utils_1.isPrimitive(key)) {
                     const values = value;
-                    for (const pair of values) {
+                    for (let pair of values) {
+                        pair = [pair[0], pair[1]];
                         if (useDefault && pair[1] === undefined) {
                             pair[1] = defaultValue;
                         }
@@ -150,7 +151,7 @@
             }
         }
         forEach(callback, thisArg) {
-            const hasThis = typeof thisArg !== "undefined";
+            const hasThis = thisArg !== undefined;
             for (const [key, value] of this.entries()) {
                 if (hasThis) {
                     callback.call(thisArg, key, value, this);

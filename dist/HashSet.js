@@ -52,8 +52,11 @@
                     }
                     else {
                         for (let i = 0; i < values.length; i++) {
-                            if (values[i] === value) {
+                            if (values[i] === value
+                                || values[i] !== values[i]
+                                    && value !== value) {
                                 values[i] = value;
+                                return this;
                             }
                         }
                     }
@@ -84,7 +87,9 @@
                     }
                     else {
                         for (let i = 0; i < values.length; i++) {
-                            if (values[i] === value) {
+                            if (values[i] === value
+                                || values[i] !== values[i]
+                                    && value !== value) {
                                 return true;
                             }
                         }
@@ -117,7 +122,9 @@
                     }
                     else {
                         for (let i = 0; i < values.length; i++) {
-                            if (values[i] === value) {
+                            if (values[i] === value
+                                || values[i] !== values[i]
+                                    && value !== value) {
                                 values.splice(i, 1);
                                 return true;
                             }
@@ -147,7 +154,7 @@
             }
         }
         forEach(callback, thisArg) {
-            const hasThis = typeof thisArg !== "undefined";
+            const hasThis = thisArg !== undefined;
             for (const value of this.values()) {
                 if (hasThis) {
                     callback.call(thisArg, value, value, this);

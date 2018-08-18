@@ -57,7 +57,7 @@ export class HashOnlySet<V> {
     forEach(callback: (value1: V, value2: V, map: this) => void): void;
     forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg: T): void;
     forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg?: T) {
-        const hasThis = typeof thisArg !== "undefined";
+        const hasThis = thisArg !== undefined;
         for (const value of this.values()) {
             if (hasThis) {
                 callback.call(thisArg, value, value, this);

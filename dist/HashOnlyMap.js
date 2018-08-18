@@ -37,7 +37,7 @@
         }
         get(key, defaultValue = this.defaultValue) {
             const value = this.getValue(key);
-            return typeof value !== "undefined" ? value : defaultValue;
+            return value !== undefined ? value : defaultValue;
         }
         has(key) {
             const value = this.getValue(key);
@@ -67,7 +67,7 @@
             }
         }
         forEach(callback, thisArg) {
-            const hasThis = typeof thisArg !== "undefined";
+            const hasThis = thisArg !== undefined;
             for (const [key, value] of this.entries()) {
                 if (hasThis) {
                     callback.call(thisArg, key, value, this);

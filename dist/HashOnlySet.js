@@ -49,7 +49,7 @@
             return this._map.values();
         }
         forEach(callback, thisArg) {
-            const hasThis = typeof thisArg !== "undefined";
+            const hasThis = thisArg !== undefined;
             for (const value of this.values()) {
                 if (hasThis) {
                     callback.call(thisArg, value, value, this);

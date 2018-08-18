@@ -36,7 +36,7 @@ export class HashOnlyMap<K, V> {
 
     get(key: K, defaultValue = this.defaultValue) {
         const value = this.getValue(key);
-        return typeof value !== "undefined" ? value : defaultValue;
+        return value !== undefined ? value : defaultValue;
     }
 
     has(key: K) {
@@ -74,7 +74,7 @@ export class HashOnlyMap<K, V> {
     forEach(callback: (key: K, value: V, map: this) => void): void;
     forEach<T>(callback: (this: T, key: K, value: V, map: this) => void, thisArg: T): void;
     forEach<T>(callback: (this: T, key: K, value: V, map: this) => void, thisArg?: T) {
-        const hasThis = typeof thisArg !== "undefined";
+        const hasThis = thisArg !== undefined;
         for (const [key, value] of this.entries()) {
             if (hasThis) {
                 callback.call(thisArg, key, value, this);

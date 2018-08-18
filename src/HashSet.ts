@@ -49,8 +49,13 @@ export class HashSet<V> {
                     values.push(value);
                 } else {
                     for (let i = 0; i < values.length; i++) {
-                        if (values[i] === value) {
+                        if (
+                            values[i] === value
+                            || values[i] !== values[i]
+                            && value !== value
+                        ) {
                             values[i] = value;
+                            return this;
                         }
                     }
                 }
@@ -79,7 +84,11 @@ export class HashSet<V> {
                     }
                 } else {
                     for (let i = 0; i < values.length; i++) {
-                        if (values[i] === value) {
+                        if (
+                            values[i] === value
+                            || values[i] !== values[i]
+                            && value !== value
+                        ) {
                             return true;
                         }
                     }
@@ -110,7 +119,11 @@ export class HashSet<V> {
                     }
                 } else {
                     for (let i = 0; i < values.length; i++) {
-                        if (values[i] === value) {
+                        if (
+                            values[i] === value
+                            || values[i] !== values[i]
+                            && value !== value
+                        ) {
                             values.splice(i, 1);
                             return true;
                         }
@@ -143,7 +156,7 @@ export class HashSet<V> {
     forEach(callback: (value1: V, value2: V, map: this) => void): void;
     forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg: T): void;
     forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg?: T) {
-        const hasThis = typeof thisArg !== "undefined";
+        const hasThis = thisArg !== undefined;
         for (const value of this.values()) {
             if (hasThis) {
                 callback.call(thisArg, value, value, this);

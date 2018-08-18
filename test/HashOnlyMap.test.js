@@ -48,19 +48,28 @@ test('getter worked properly with primitive keys and the default value', () => {
         expect(map.get(key)).toStrictEqual(value);
     }
 
+    const anotherDefault = { num: 88 };
     for (const key of nonExistentKeys) {
         expect(map.get(key)).toStrictEqual(undefined);
     }
     map.defaultValue = defaultValue;
+    for (const [key, value] of primitiveKeyPairs) {
+        expect(map.get(key)).toStrictEqual(value);
+    }
     for (const key of nonExistentKeys) {
         expect(map.get(key)).toStrictEqual(defaultValue);
+    }
+    for (const key of nonExistentKeys) {
+        expect(map.get(key, anotherDefault)).toStrictEqual(anotherDefault);
     }
 
-    map = new HashOnlyMap(null, null, defaultValue);
+    map = new HashOnlyMap(null, primitiveKeyPairs, defaultValue);
+    for (const [key, value] of primitiveKeyPairs) {
+        expect(map.get(key)).toStrictEqual(value);
+    }
     for (const key of nonExistentKeys) {
         expect(map.get(key)).toStrictEqual(defaultValue);
     }
-    const anotherDefault = { num: 88 };
     for (const key of nonExistentKeys) {
         expect(map.get(key, anotherDefault)).toStrictEqual(anotherDefault);
     }
@@ -231,6 +240,7 @@ test('getter worked properly with object keys and the default value', () => {
         expect(map.get(key)).toStrictEqual(value);
     }
 
+    const anotherDefault = { num: 88 };
     for (const key of nonExistentKeys) {
         expect(map.get(key)).toStrictEqual(undefined);
     }
@@ -238,12 +248,20 @@ test('getter worked properly with object keys and the default value', () => {
     for (const key of nonExistentKeys) {
         expect(map.get(key)).toStrictEqual(defaultValue);
     }
+    for (const [key, value] of datePairs) {
+        expect(map.get(key)).toStrictEqual(value);
+    }
+    for (const key of nonExistentKeys) {
+        expect(map.get(key, anotherDefault)).toStrictEqual(anotherDefault);
+    }
 
-    map = new HashOnlyMap(null, null, defaultValue);
+    map = new HashOnlyMap(null, datePairs, defaultValue);
+    for (const [key, value] of datePairs) {
+        expect(map.get(key)).toStrictEqual(value);
+    }
     for (const key of nonExistentKeys) {
         expect(map.get(key)).toStrictEqual(defaultValue);
     }
-    const anotherDefault = { num: 88 };
     for (const key of nonExistentKeys) {
         expect(map.get(key, anotherDefault)).toStrictEqual(anotherDefault);
     }
@@ -381,7 +399,7 @@ test('`entries()` and `iterator` work similarly', () => {
     expect(entries.next().done).toStrictEqual(true);
 });
 
-test('`values()` and `keys()` work similarly', () => {
+test('`values()` and `keys()` work properly', () => {
     const map = new HashOnlyMap(keyHash, primitiveKeyPairs.concat(datePairs));
 
     const entries = map.entries();
