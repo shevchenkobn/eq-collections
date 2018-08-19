@@ -39,16 +39,13 @@
                     this._map.set(hash, [value]);
                 }
                 else {
-                    if (!valueIsPrimitive) {
-                        if (this.valuesEqual) {
-                            for (let i = 0; i < values.length; i++) {
-                                if (this.valuesEqual(values[i], value)) {
-                                    values[i] = value;
-                                    return this;
-                                }
+                    if (!valueIsPrimitive && this.valuesEqual) {
+                        for (let i = 0; i < values.length; i++) {
+                            if (this.valuesEqual(values[i], value)) {
+                                values[i] = value;
+                                return this;
                             }
                         }
-                        values.push(value);
                     }
                     else {
                         for (let i = 0; i < values.length; i++) {
@@ -60,6 +57,7 @@
                             }
                         }
                     }
+                    values.push(value);
                 }
             }
             else {
@@ -76,12 +74,10 @@
                     return false;
                 }
                 else {
-                    if (!valueIsPrimitive) {
-                        if (this.valuesEqual) {
-                            for (let i = 0; i < values.length; i++) {
-                                if (this.valuesEqual(values[i], value)) {
-                                    return true;
-                                }
+                    if (!valueIsPrimitive && this.valuesEqual) {
+                        for (let i = 0; i < values.length; i++) {
+                            if (this.valuesEqual(values[i], value)) {
+                                return true;
                             }
                         }
                     }
@@ -110,13 +106,14 @@
                     return false;
                 }
                 else {
-                    if (!valueIsPrimitive) {
-                        if (this.valuesEqual) {
-                            for (let i = 0; i < values.length; i++) {
-                                if (this.valuesEqual(values[i], value)) {
-                                    values.splice(i, 1);
-                                    return true;
+                    if (!valueIsPrimitive && this.valuesEqual) {
+                        for (let i = 0; i < values.length; i++) {
+                            if (this.valuesEqual(values[i], value)) {
+                                values.splice(i, 1);
+                                if (!values.length) {
+                                    this._map.delete(hash);
                                 }
+                                return true;
                             }
                         }
                     }
@@ -126,6 +123,9 @@
                                 || values[i] !== values[i]
                                     && value !== value) {
                                 values.splice(i, 1);
+                                if (!values.length) {
+                                    this._map.delete(hash);
+                                }
                                 return true;
                             }
                         }

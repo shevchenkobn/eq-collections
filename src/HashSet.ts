@@ -37,16 +37,13 @@ export class HashSet<V> {
             if (!values) {
                 this._map.set(hash, [value]);
             } else {
-                if (!valueIsPrimitive) {
-                    if (this.valuesEqual) {
-                        for (let i = 0; i < values.length; i++) {
-                            if (this.valuesEqual(values[i], value)) {
-                                values[i] = value;
-                                return this;
-                            }
+                if (!valueIsPrimitive && this.valuesEqual) {
+                    for (let i = 0; i < values.length; i++) {
+                        if (this.valuesEqual(values[i], value)) {
+                            values[i] = value;
+                            return this;
                         }
                     }
-                    values.push(value);
                 } else {
                     for (let i = 0; i < values.length; i++) {
                         if (
@@ -59,6 +56,7 @@ export class HashSet<V> {
                         }
                     }
                 }
+                values.push(value);
             }
         } else {
             this._map.set(value, value);
@@ -74,12 +72,10 @@ export class HashSet<V> {
             if (!values) {
                 return false;
             } else {
-                if (!valueIsPrimitive) {
-                    if (this.valuesEqual) {
-                        for (let i = 0; i < values.length; i++) {
-                            if (this.valuesEqual(values[i], value)) {
-                                return true;
-                            }
+                if (!valueIsPrimitive && this.valuesEqual) {
+                    for (let i = 0; i < values.length; i++) {
+                        if (this.valuesEqual(values[i], value)) {
+                            return true;
                         }
                     }
                 } else {
@@ -108,13 +104,14 @@ export class HashSet<V> {
             if (!values) {
                 return false;
             } else {
-                if (!valueIsPrimitive) {
-                    if (this.valuesEqual) {
-                        for (let i = 0; i < values.length; i++) {
-                            if (this.valuesEqual(values[i], value)) {
-                                values.splice(i, 1);
-                                return true;
+                if (!valueIsPrimitive && this.valuesEqual) {
+                    for (let i = 0; i < values.length; i++) {
+                        if (this.valuesEqual(values[i], value)) {
+                            values.splice(i, 1);
+                            if (!values.length) {
+                                this._map.delete(hash);
                             }
+                            return true;
                         }
                     }
                 } else {
@@ -125,6 +122,9 @@ export class HashSet<V> {
                             && value !== value
                         ) {
                             values.splice(i, 1);
+                            if (!values.length) {
+                                this._map.delete(hash);
+                            }
                             return true;
                         }
                     }
