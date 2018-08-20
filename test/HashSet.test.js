@@ -13,6 +13,10 @@ test('primitives are added and iterated properly', () => {
         set.add(value);
     }
     expect(set.size).toStrictEqual(primitives.length);
+    for (const value of primitives) {
+        set.add(value);
+    }
+    expect(set.size).toStrictEqual(primitives.length);
 
     const iter = set[Symbol.iterator]();
     for (let i = 0, v = iter.next(); i < primitives.length; i++, v = iter.next()) {

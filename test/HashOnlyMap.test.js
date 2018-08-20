@@ -16,6 +16,10 @@ test('primitives are added and iterated properly', () => {
         map.set(key, value);
     }
     expect(map.size).toStrictEqual(primitiveKeyPairs.length);
+    for (const [key, value] of primitiveKeyPairs) {
+        map.set(key, value);
+    }
+    expect(map.size).toStrictEqual(primitiveKeyPairs.length);
 
     const iter = map[Symbol.iterator]();
     for (let i = 0, v = iter.next(); i < primitiveKeyPairs.length; i++ , v = iter.next()) {
@@ -100,7 +104,7 @@ test('getter worked properly with primitive keys and the default value', () => {
 let primitivesIndexesToDelete = [1, 4, 5, 8];
 let map;
 
-test('values are deleted and set is cleared', () => {
+test('values are deleted and map is cleared', () => {
     map = new HashOnlyMap(null, primitiveKeyPairs);
 
     for (const i of primitivesIndexesToDelete) {
