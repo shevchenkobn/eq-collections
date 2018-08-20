@@ -13,11 +13,11 @@ test('primitives are added and iterated properly', () => {
     const map = new HashOnlyMap();
 
     for (const [key, value] of primitiveKeyPairs) {
-        map.set(key, value);
+        expect(map.set(key, value)).toStrictEqual(map);
     }
     expect(map.size).toStrictEqual(primitiveKeyPairs.length);
     for (const [key, value] of primitiveKeyPairs) {
-        map.set(key, value);
+        expect(map.set(key, value)).toStrictEqual(map);
     }
     expect(map.size).toStrictEqual(primitiveKeyPairs.length);
 
@@ -79,7 +79,7 @@ test('getter worked properly with primitive keys and the default value', () => {
     }
 
     for (const [key] of primitiveKeyPairs) {
-        map.set(key, undefined);
+        expect(map.set(key, undefined)).toStrictEqual(map);
     }
     {
         const iter = map.entries(true);
@@ -151,7 +151,7 @@ const objectsIndexesToDelete = [1, 3];
 
 test('non-hashed objects map ready', () => {
     for (const [key, value] of datePairs) {
-        map.set(key, value);
+        expect(map.set(key, value)).toStrictEqual(map);
     }
 
     expect(map.size).toStrictEqual(datePairs.length);
@@ -184,7 +184,7 @@ test('non-hashed objects map ready', () => {
 
     const newPairs = datePairs.map(([key, value]) => [new Date(key), value + '-2']);
     for (const [key, value] of newPairs) {
-        map.set(key, value);
+        expect(map.set(key, value)).toStrictEqual(map);
     }
     expect(map.size).toStrictEqual(newSize + datePairs.length);
 
@@ -227,7 +227,7 @@ test('hashed objects map ready', () => {
 
     const newPairs = datePairs.map(([key, value]) => [new Date(key), value + '-2']);
     for (const [key, value] of newPairs) {
-        map.set(key, value);
+        expect(map.set(key, value)).toStrictEqual(map);
     }
     expect(map.size).toStrictEqual(datePairs.length);
 
@@ -271,7 +271,7 @@ test('getter worked properly with object keys and the default value', () => {
     }
 
     for (const [key] of datePairs) {
-        map.set(key, undefined);
+        expect(map.set(key, undefined)).toStrictEqual(map);
     }
     {
         const iter = map.entries(true);
@@ -308,7 +308,7 @@ test('non-hashed objects and primitives ready', () => {
     expect(map.size).toStrictEqual(jointArray.length);
 
     for (const i of indexesToDelete) {
-        expect(map.has(jointArray[i][0])).toStrictEqual(true);
+        expect(map.get(jointArray[i][0])).toStrictEqual(jointArray[i][1]);
         expect(map.delete(jointArray[i][0])).toStrictEqual(true);
         expect(map.has(jointArray[i][0])).toStrictEqual(false);
         expect(map.delete(jointArray[i][0])).toStrictEqual(false);
@@ -433,15 +433,15 @@ test('`keyHash()` monkey patching', () => {
     map.keyHash = null;
     for (const [key, value] of datePairs) {
         expect(map.has(key)).toStrictEqual(false);
-        expect(map.has(keyHash(key))).toStrictEqual(true);
-        map.set(key, value + '-num');
+        expect(map.get(keyHash(key))).toStrictEqual(value);
+        expect(map.set(key, value + '-num')).toStrictEqual(map);
         expect(map.has(key)).toStrictEqual(true);
     }
 
     map.keyHash = stringHash;
     for (const [key, value] of datePairs) {
         expect(map.has(key)).toStrictEqual(false);
-        map.set(key, value + '-str');
+        expect(map.set(key, value + '-str')).toStrictEqual(map);
         expect(map.has(key)).toStrictEqual(true);
     }
 

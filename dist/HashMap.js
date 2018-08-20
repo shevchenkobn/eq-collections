@@ -112,12 +112,20 @@
                     if (!keyIsPrimitive && this.keysEqual) {
                         for (const [mapKey,] of values) {
                             if (this.keysEqual(mapKey, key)) {
-                                return values.delete(mapKey);
+                                values.delete(mapKey);
+                                if (!values.size) {
+                                    return this._map.delete(hash);
+                                }
+                                return true;
                             }
                         }
                     }
                     else {
-                        return values.delete(key);
+                        const success = values.delete(key);
+                        if (!values.size) {
+                            return this._map.delete(hash);
+                        }
+                        return success;
                     }
                 }
                 return false;

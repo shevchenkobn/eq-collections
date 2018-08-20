@@ -10,11 +10,11 @@ test('primitives are added and iterated properly', () => {
     const set = new HashSet();
     
     for (const value of primitives) {
-        set.add(value);
+        expect(set.add(value)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(primitives.length);
     for (const value of primitives) {
-        set.add(value);
+        expect(set.add(value)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(primitives.length);
 
@@ -104,7 +104,7 @@ const objectsIndexesToDelete = [1, 3];
 
 test('non-hashed objects set ready', () => {
     for (const obj of objects) {
-        set.add(obj);
+        expect(set.add(obj)).toStrictEqual(set);
     }
 
     expect(set.size).toStrictEqual(objects.length);
@@ -136,7 +136,7 @@ test('non-hashed objects set ready', () => {
 
     const newObjects = objects.map(date => new Date(date));
     for (const date of newObjects) {
-        set.add(date);
+        expect(set.add(date)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(newSize + objects.length);
 
@@ -178,7 +178,7 @@ test('hashed-only objects set ready', () => {
 
     const newObjects = objects.map(clone);
     for (const obj of newObjects) {
-        set.add(obj);
+        expect(set.add(obj)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(objects.length * 2 - objectsIndexesToDelete.length);
 
@@ -248,7 +248,7 @@ test('hashed objects set ready', () => {
 
     const newObjects = objects.map(clone);
     for (const obj of newObjects) {
-        set.add(obj);
+        expect(set.add(obj)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(actualHashPairs.length);
 
@@ -304,10 +304,8 @@ test('hashed-only objects and primitives ready', () => {
     const set = new HashSet(hash, null, jointArray);
 
     for (const value of jointArray) {
-        if (NaNSafeIncludes(primitives, value)) {
-            expect(set.has(value)).toStrictEqual(true);
-        } else {
-            expect(set.has(value)).toStrictEqual(true);
+        expect(set.has(value)).toStrictEqual(true);
+        if (!NaNSafeIncludes(primitives, value)) {
             const hashed = hash(value);
             expect(set.has(hashed)).toStrictEqual(NaNSafeIncludes(primitives, hashed));
         }
@@ -503,14 +501,14 @@ test('hash function monkey patching', () => {
     for (const obj of objects) {
         expect(set.has(obj)).toStrictEqual(false);
         expect(set.has(hash(obj))).toStrictEqual(false);
-        set.add(obj);
+        expect(set.add(obj)).toStrictEqual(set);
         expect(set.has(obj)).toStrictEqual(true);
     }
 
     set.valueHash = stringHash;
     for (const obj of objects) {
         expect(set.has(obj)).toStrictEqual(false);
-        set.add(obj);
+        expect(set.add(obj)).toStrictEqual(set);
         expect(set.has(obj)).toStrictEqual(true);
     }
 
@@ -538,7 +536,7 @@ test('equal function monkey patching', () => {
         expect(set.has(hash(obj))).toStrictEqual(false);
         expect(set.has(cloned)).toStrictEqual(false);
         if (!isInSet) {
-            set.add(obj);
+            expect(set.add(obj)).toStrictEqual(set);
             expect(set.has(cloned)).toStrictEqual(false);
             expect(set.has(obj)).toStrictEqual(true);
         }

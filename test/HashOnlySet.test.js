@@ -10,11 +10,11 @@ test('primitives are added and iterated properly', () => {
     const set = new HashOnlySet();
     
     for (const value of primitives) {
-        set.add(value);
+        expect(set.add(value)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(primitives.length);
     for (const value of primitives) {
-        set.add(value);
+        expect(set.add(value)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(primitives.length);
 
@@ -85,7 +85,7 @@ const objectsIndexesToDelete = [1, 3];
 
 test('non-hashed objects set ready', () => {
     for (const date of dates) {
-        set.add(date);
+        expect(set.add(date)).toStrictEqual(set);
     }
 
     expect(set.size).toStrictEqual(dates.length);
@@ -117,7 +117,7 @@ test('non-hashed objects set ready', () => {
 
     const newObjects = dates.map(date => new Date(date));
     for (const date of newObjects) {
-        set.add(date);
+        expect(set.add(date)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(newSize + dates.length);
 
@@ -159,7 +159,7 @@ test('hashed objects set ready', () => {
 
     const newObjects = dates.map(date => new Date(date));
     for (const date of newObjects) {
-        set.add(date);
+        expect(set.add(date)).toStrictEqual(set);
     }
     expect(set.size).toStrictEqual(dates.length);
 
@@ -290,14 +290,14 @@ test('`valueHash()` monkey patching', () => {
     for (const date of dates) {
         expect(set.has(date)).toStrictEqual(false);
         expect(set.has(hash(date))).toStrictEqual(true);
-        set.add(date);
+        expect(set.add(date)).toStrictEqual(set);
         expect(set.has(date)).toStrictEqual(true);
     }
 
     set.valueHash = stringHash;
     for (const date of dates) {
         expect(set.has(date)).toStrictEqual(false);
-        set.add(date);
+        expect(set.add(date)).toStrictEqual(set);
         expect(set.has(date)).toStrictEqual(true);
     }
 
