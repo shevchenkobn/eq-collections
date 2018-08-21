@@ -424,7 +424,7 @@ test('non-hashed objects and primitives ready', () => {
     expect(map[Symbol.iterator]().next().done).toStrictEqual(true);
 });
 
-const NaNSafeIncludes = (arr, value, accessor) => value === value ? arr.some(v => accessor(v) === value) : arr.some(v => Number.isNaN(accessor(v)));
+const NaNSafeIncludes = (arr, value, accessor = (v) => v) => value === value ? arr.some(v => accessor(v) === value) : arr.some(v => Number.isNaN(accessor(v)));
 
 test('hashed-only objects and primitives ready', () => {
     const jointArray = primitiveKeyPairs.concat(objects);
@@ -432,44 +432,185 @@ test('hashed-only objects and primitives ready', () => {
 
     for (const [key, value] of jointArray) {
         expect(map.has(key)).toStrictEqual(true);
-        const hash = keyHash(key);
-        if (NaNSafeIncludes(primitiveKeyPairs, key, p => p[1])) {
-            expect(map.get(key)).toStrictEqual(primitiveKeyPairs.find(([key]) => key === hash || key !== key && hash !== hash)[1]);
-            expect(map.get(hash)).toStrictEqual(primitiveKeyPairs.find(([key]) => key === hash || key !== key && hash !== hash)[1]);
-        } else {
-            expect(set.has(hash)).toStrictEqual(NaNSafeIncludes(primitives, hash, p => p[1]));
+        expect(map.get(key)).toStrictEqual(value);
+        if (!NaNSafeIncludes(primitiveKeyPairs, key, p => p[0])) {
+            const hash = keyHash(key);
+            expect(map.has(hash)).toStrictEqual(NaNSafeIncludes(primitiveKeyPairs, hash, p => p[0]));
         }
     }
     expect(map.size).toStrictEqual(jointArray.length);
 
     const hashedPairs = jointArray
         .map(([key, value]) => [
-            NaNSafeIncludes(primitiveKeyPairs, key, p => p[1])
+            NaNSafeIncludes(primitiveKeyPairs, key, p => p[0])
                 ? key
-                : hash(key),
+                : keyHash(key),
                 [key, value]
         ])
         .filter(([hash, [key]]) => key === key && hash !== key);
     const deleteCount = parseInt(hashedPairs.length / 2);
     const deletedPrimitives = [];
     for (let i = 0; i < deleteCount; i++) {
-        const [hash, [key]] = hashedPairs[i];
+        const [hash, [key, value]] = hashedPairs[i];
+        const hashIsValidPrimitive = NaNSafeIncludes(primitiveKeyPairs, hash, p => p[0]) && !NaNSafeIncludes(deletedPrimitives, hash);
         expect(map.has(key)).toStrictEqual(true);
-        expect(map.has(hash)).toStrictEqual(true);
+        expect(map.has(hash)).toStrictEqual(hashIsValidPrimitive);
+        expect(map.delete(hash)).toStrictEqual(hashIsValidPrimitive);
+        if (hashIsValidPrimitive) {
+            deletedPrimitives.push(hash);
+        }
         expect(map.delete(key)).toStrictEqual(true);
-        expect(map.delete(hash)).toStrictEqual(false);
         expect(map.has(key)).toStrictEqual(false);
         expect(map.has(hash)).toStrictEqual(false);
-        hashMap.delete(hash);
     }
     
-    const leftPairs = [...hashMap].map(([, pair]) => pair);
+    const leftPairs = jointArray.filter(
+        ([key]) => NaNSafeIncludes(primitiveKeyPairs, key, p => p[0])
+            && !hashedPairs.some(([hash], i) => i < deleteCount && key === hash)
+            || hashedPairs.findIndex(([hash, [k]]) => key === k) >= deleteCount
+    );
+    const hashToValues = leftPairs.reduce((map, [key, value]) => {
+        if (NaNSafeIncludes(primitiveKeyPairs, key, p => p[0])) {
+            return map;
+        }
+        const hash = keyHash(key);
+        if (NaNSafeIncludes(primitiveKeyPairs, hash, p => p[0])) {
+            const pairs = map.get(hash) || [];
+            pairs.push([key, value]);
+            if (pairs.length === 1) {
+                map.set(hash, pairs);
+            }
+        }
+        return map;
+    }, new Map());
+    for (const [hash, values] of hashToValues) {
+        const indexToInsert = leftPairs.findIndex(p => p[0] === hash);
+        for (const [key, value] of values) {
+            leftPairs.splice(leftPairs.findIndex(p => p[0] === key), 1);
+        }
+        leftPairs.splice(indexToInsert + 1, 0, ...values);
+    }
     expect(map.size).toStrictEqual(leftPairs.length);
 
     {
         const iter = map[Symbol.iterator]();
         let v;
         for (const [key, value] of leftPairs) {
+            v = iter.next();
+            expect(v.value[0]).toStrictEqual(key);
+            expect(v.value[1]).toStrictEqual(value);
+        }
+        expect(iter.next().done).toStrictEqual(true);
+    }
+
+    map.clear();
+    expect(map.size).toStrictEqual(0);
+    expect(map[Symbol.iterator]().next().done).toStrictEqual(true);
+});
+
+const mixedEqual = (key1, key2) => {
+    return NaNSafeIncludes(primitiveKeyPairs, key1, p => p[0]) || NaNSafeIncludes(primitiveKeyPairs, key2, p => p[0])
+        ? key1 === key2 || key1 !== key1 && key2 !== key2
+        : areEqual(key1, key2);
+};
+
+test('hashed objects and primitives ready', () => {
+    const jointArray = primitiveKeyPairs.concat(objects);
+    const map = new HashMap(keyHash, mixedEqual, jointArray);
+
+    const hashedValues = jointArray.reduce(
+        (map, [key, value]) => {
+            const hashedIsKey = NaNSafeIncludes(primitiveKeyPairs, key, p => p[0]);
+            const hashed = hashedIsKey ? key : keyHash(key);
+            const pairs = map.get(hashed) || [];
+            const indexOfEqual = pairs.findIndex(
+                p => mixedEqual(p[0], key)
+            );
+            if (~indexOfEqual) {
+                pairs[indexOfEqual] = [key, value];
+            } else {
+                pairs.push([key, value]);
+                if (pairs.length === 1) {
+                    map.set(hashed, pairs);
+                }
+            }
+            return map;
+        },
+        new Map()
+    );
+    const actualHashPairs = [];
+    for (const [hash, values] of hashedValues) {
+        for (const value of values) {
+            actualHashPairs.push([hash, value]);
+        }
+    }
+
+    for (const [key, value] of jointArray) {
+        expect(map.has(key)).toStrictEqual(true);
+        // try{
+        
+        // expect(map.get(key)).toStrictEqual(actualHashPairs.find(
+        //     ([hash, [k]]) => 
+        //     hash === hashed
+        //     && mixedEqual(key, k)
+        // )[1][1]);
+        // }catch(err){
+        //     console.log(actualHashPairs.map(p => p[1]), key, value);
+        //     console.log(map._map);
+        //     throw err;
+        // }
+        if (!NaNSafeIncludes(primitiveKeyPairs, key, p => p[0])) {
+            const hashed = keyHash(key);
+            expect(map.has(hashed)).toStrictEqual(NaNSafeIncludes(primitiveKeyPairs, hashed, p => p[0]));
+            expect(map.get(key)).toStrictEqual(actualHashPairs.find(
+                ([hash, [k]]) => 
+                hash === hashed
+                && areEqual(key, k)
+            )[1][1]);
+        } else {
+            expect(map.get(key)).toStrictEqual(actualHashPairs.find(
+                ([hash, [k]]) => 
+                hash === key
+                && key === k
+                || key !== key
+                && hash !== hash
+                && k !== k
+            )[1][1]);
+        }
+    }
+    expect(map.size).toStrictEqual(actualHashPairs.length);
+
+    const deleteCount = parseInt(actualHashPairs.length / 2);
+    const deletedPrimitives = [];
+    for (let i = 0; i < deleteCount; i++) {
+        const [hash, [key]] = actualHashPairs[i];
+        const hashIsValidPrimitive = NaNSafeIncludes(primitiveKeyPairs, hash, p => p[0]) && !NaNSafeIncludes(deletedPrimitives, hash);
+        expect(map.has(key)).toStrictEqual(true);
+        expect(map.has(hash)).toStrictEqual(hashIsValidPrimitive);
+        expect(map.delete(hash)).toStrictEqual(hashIsValidPrimitive);
+        if (hashIsValidPrimitive) {
+            deletedPrimitives.push(hash);
+        }
+        expect(map.delete(key)).toStrictEqual(!hashIsValidPrimitive);
+        expect(map.has(key)).toStrictEqual(false);
+        expect(map.has(hash)).toStrictEqual(false);
+    }
+    
+    const leftHashedValues = actualHashPairs.filter(
+        ([hash, [key]], i) => i >= deleteCount
+            && (
+                !NaNSafeIncludes(primitiveKeyPairs, key, p => p[0])
+                || actualHashPairs.findIndex(
+                    ([hash,], i) => i < deleteCount && (key !== key && hash !== hash || hash === key)
+                )
+            )
+    );
+    expect(map.size).toStrictEqual(leftHashedValues.length);
+
+    {
+        const iter = map[Symbol.iterator]();
+        let v;
+        for (const [,[key, value]] of leftHashedValues) {
             v = iter.next();
             expect(v.value[0]).toStrictEqual(key);
             expect(v.value[1]).toStrictEqual(value);

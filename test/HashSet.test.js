@@ -417,10 +417,8 @@ test('hashed objects and primitives ready', () => {
     }
 
     for (const value of jointArray) {
-        if (NaNSafeIncludes(primitives, value)) {
-            expect(set.has(value)).toStrictEqual(true);
-        } else {
-            expect(set.has(value)).toStrictEqual(true);
+        expect(set.has(value)).toStrictEqual(true);
+        if (!NaNSafeIncludes(primitives, value)) {
             const hashed = hash(value);
             expect(set.has(hashed)).toStrictEqual(NaNSafeIncludes(primitives, hashed));
         }
