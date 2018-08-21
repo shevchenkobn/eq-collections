@@ -67,9 +67,8 @@
             }
         }
         forEach(callback, thisArg) {
-            const hasThis = thisArg !== undefined;
             for (const [key, value] of this.entries()) {
-                if (hasThis) {
+                if (thisArg !== undefined) {
                     callback.call(thisArg, key, value, this);
                 }
                 else {

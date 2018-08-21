@@ -1,6 +1,6 @@
 {
   "name": "eq-collections",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Map and Set collections that use custom hash function or hash function with equals function",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

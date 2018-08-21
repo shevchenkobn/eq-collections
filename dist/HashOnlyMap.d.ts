@@ -12,7 +12,7 @@ export declare class HashOnlyMap<K, V> {
     clear(): void;
     entries(useDefault?: boolean, defaultValue?: V | null | undefined): IterableIterator<[K, V]>;
     forEach(callback: (key: K, value: V, map: this) => void): void;
-    forEach<T>(callback: (this: T, key: K, value: V, map: this) => void, thisArg: T): void;
+    forEach<T>(callback: (key: K, value: V, map: this) => void, thisArg: T): void;
     keys(): IterableIterator<K>;
     values(useDefault?: boolean, defaultValue?: V | null | undefined): IterableIterator<V>;
     private getValue;

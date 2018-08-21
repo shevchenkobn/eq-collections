@@ -490,6 +490,36 @@ test('iterators work similarly', () => {
   }
 });
 
+test('`forEach()` testing', () => {
+  const set = new HashSet(hash, mixedEqual, primitives.concat(objects));
+
+  let iter = set.entries();
+  let value;
+
+  set.forEach((value1, value2, mapArg) => {
+    value = iter.next().value;
+
+    expect(value).toStrictEqual(value1);
+    expect(value).toStrictEqual(value2);
+    expect(mapArg).toStrictEqual(set);
+  });
+  expect(iter.next().done).toStrictEqual(true);
+
+  iter = set.entries();
+  const thisArg = { hello: 'world' };
+
+  set.forEach(function(value1, value2, mapArg) {
+    expect(this).toStrictEqual(thisArg);
+
+    value = iter.next().value;
+
+    expect(value).toStrictEqual(value1);
+    expect(value).toStrictEqual(value2);
+    expect(mapArg).toStrictEqual(set);
+  }, thisArg);
+  expect(iter.next().done).toStrictEqual(true);
+});
+
 const stringHash = (arr) => arr[0].toString();
 
 test('hash function monkey patching', () => {

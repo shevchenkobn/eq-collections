@@ -154,9 +154,8 @@
             }
         }
         forEach(callback, thisArg) {
-            const hasThis = thisArg !== undefined;
             for (const value of this.values()) {
-                if (hasThis) {
+                if (thisArg !== undefined) {
                     callback.call(thisArg, value, value, this);
                 }
                 else {

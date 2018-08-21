@@ -663,6 +663,36 @@ test('`values()` and `keys()` work properly', () => {
   expect(entries.next().done).toStrictEqual(true);
 });
 
+test('`forEach()` testing', () => {
+  const map = new HashMap(keyHash, mixedEqual, primitiveKeyPairs.concat(objects));
+
+  let iter = map.entries();
+  let pair;
+
+  map.forEach((key, value, mapArg) => {
+    pair = iter.next().value;
+
+    expect(key).toStrictEqual(pair[0]);
+    expect(value).toStrictEqual(pair[1]);
+    expect(mapArg).toStrictEqual(map);
+  });
+  expect(iter.next().done).toStrictEqual(true);
+
+  iter = map.entries();
+  const thisArg = { hello: 'world' };
+
+  map.forEach(function(key, value, mapArg) {
+    expect(this).toStrictEqual(thisArg);
+
+    pair = iter.next().value;
+
+    expect(key).toStrictEqual(pair[0]);
+    expect(value).toStrictEqual(pair[1]);
+    expect(mapArg).toStrictEqual(map);
+  }, thisArg);
+  expect(iter.next().done).toStrictEqual(true);
+});
+
 const stringHash = (arr) => arr[0].toString();
 
 test('hash function monkey patching', () => {

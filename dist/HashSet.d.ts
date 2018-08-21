@@ -11,7 +11,7 @@ export declare class HashSet<V> {
     clear(): void;
     values(): IterableIterator<V>;
     forEach(callback: (value1: V, value2: V, map: this) => void): void;
-    forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg: T): void;
+    forEach<T>(callback: (value1: V, value2: V, map: this) => void, thisArg: T): void;
 }
 export interface HashSet<V> {
     [Symbol.iterator]: typeof HashSet.prototype.values;

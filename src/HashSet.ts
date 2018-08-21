@@ -154,11 +154,10 @@ export class HashSet<V> {
   }
 
   forEach(callback: (value1: V, value2: V, map: this) => void): void;
-  forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg: T): void;
-  forEach<T>(callback: (this: T, value1: V, value2: V, map: this) => void, thisArg?: T) {
-    const hasThis = thisArg !== undefined;
+  forEach<T>(callback: (value1: V, value2: V, map: this) => void, thisArg: T): void;
+  forEach<T>(callback: (value1: V, value2: V, map: this) => void, thisArg?: T) {
     for (const value of this.values()) {
-      if (hasThis) {
+      if (thisArg !== undefined) {
         callback.call(thisArg, value, value, this);
       } else {
         (callback as any)(value, value, this);

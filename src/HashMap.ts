@@ -158,11 +158,10 @@ export class HashMap<K, V> {
   }
 
   forEach(callback: (key: K, value: V, map: this) => void): void;
-  forEach<T>(callback: (this: T, key: K, value: V, map: this) => void, thisArg: T): void;
-  forEach<T>(callback: (this: T, key: K, value: V, map: this) => void, thisArg?: T) {
-    const hasThis = thisArg !== undefined;
+  forEach<T>(callback: (key: K, value: V, map: this) => void, thisArg: T): void;
+  forEach<T>(callback: (key: K, value: V, map: this) => void, thisArg?: T) {
     for (const [key, value] of this.entries()) {
-      if (hasThis) {
+      if (thisArg !== undefined) {
         callback.call(thisArg, key, value, this);
       } else {
         (callback as any)(key, value, this);
