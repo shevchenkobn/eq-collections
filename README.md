@@ -1,6 +1,3 @@
-# This package is under development and will be republished soon
-It provides convetional `Map` and `Set` collections that **use** `hashCode` and `equals` functions (like in Java, C#, Kotlin, etc). They are based on on es6 `Map`
-
 # Hash-based sets and maps package
 ## Description
 Built-in `es6 Map` doesn't allow using objects as keys with **hash functions** _(e.g. use `Date` as a key based on UNIX timestamp as hash)_.
